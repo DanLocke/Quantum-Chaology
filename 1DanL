@@ -1,0 +1,62 @@
+# -*- coding: utf-8 -*-
+
+import numpy as np
+from numpy import matrix
+from numpy import linalg
+import math
+import matplotlib.pyplot as plt
+import scipy.constants as sc
+
+        
+n = int(input("Enter number of steps: "))
+l = float(input("Enter width of well: "))
+state = int(input("Enter energy state (GS=1): "))
+
+H = np.zeros((n,n))
+i,j = np.indices(H.shape)
+H[i==j] = 2.
+H[i==j-1] = -1.
+H[i==j+1] = -1.
+
+
+print(H)
+
+#print linalg.eig(a)
+w, v = linalg.eig(H)
+
+#myList = [1, 2, 3, 100, 5]
+state = state-1
+# enumerate list and sort by eigenvalues
+# return index of relevant energy level
+state_ind = sorted(enumerate(w), key=lambda x: x[1])[state][0]
+
+
+#print v
+a = l/n
+b = []
+for x in range(0, n+1):
+    b.append((l*x)/(n))
+#print b
+
+c=[0]
+for y in range(0,n-1):
+    c.append(v[y,state_ind])
+c.append(0)
+#print 
+
+fig = plt.figure(figsize=(15,10))
+plt.plot(b, c, label='Energy state = %s' % str(state+1))
+plt.title('1D square well', fontsize=30)
+plt.xlabel('$x_i$',fontsize=20)
+plt.ylabel('$\psi(x_i)$',fontsize=20)
+
+# calculate energy from eigenvalue !CURRENTLY IS FUCKT!
+energy = ((sc.hbar**2*w[state_ind])/ (2*sc.m_e*a**2))/sc.eV
+textstr = 'Energy = %s eV' % str(energy)
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+plt.text(0.04, 2.24, textstr, transform=ax.transAxes, fontsize=14,
+        verticalalignment='top', bbox=props)
+        
+plt.legend()
+plt.show()
+fig.savefig('1Dsqwell.png')
