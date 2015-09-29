@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+from __future__ import division
+import numpy as np
+from numpy import matrix
+from numpy import linalg
+import math
+import matplotlib.pyplot as plt
+a = matrix('2,-1,0,0,0; -1,2,-1,0,0; 0,-1,2,-1,0; 0,0,-1,2,-1; 0,0,0,-1,2')
+#print a
+#print linalg.eig(a)
+w, v = linalg.eig(a)
+#print v
+l = 1
+n = 6
+a = l/n
+b = []
+for x in range(0, n+1):
+    b.append((l*x)/(n))
+#print b
+
+c=[0]
+for y in range(0,n-1):
+    c.append(v[y,0])
+c.append(0)
+#print c
+
+plt.plot(b, c, label='GS')
+#plt.plot(b, v[:,4], label='1st')
+#plt.plot(b, v[:,3], label='2nd')
+#plt.plot(b, v[:,2], label='3rd')
+#plt.plot(b, v[:,1], label='4th')
+#plt.legend()
+plt.show()
+
