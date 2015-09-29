@@ -1,22 +1,38 @@
 # -*- coding: utf-8 -*-
-"""
-Spyder Editor
 
-This is a temporary script file.
-"""
-from __future__ import division
 import numpy as np
 from numpy import matrix
 from numpy import linalg
 import math
+from math import sqrt,sin,pi
 import matplotlib.pyplot as plt
-a = matrix('2,-1,0,0,0; -1,2,-1,0,0; 0,-1,2,-1,0; 0,0,-1,2,-1; 0,0,0,-1,2')
-#print a
+import scipy.constants as sc
+
+        
+n = int(input("Enter number of steps: "))
+l = float(input("Enter width of well: "))
+state = int(input("Enter energy state (GS=1): "))
+
+H = np.zeros((n,n))
+i,j = np.indices(H.shape)
+H[i==j] = 2.
+H[i==j-1] = -1.
+H[i==j+1] = -1.
+
+
+print(H)
+
 #print linalg.eig(a)
-w, v = linalg.eig(a)
+w, v = linalg.eig(H)
+
+#myList = [1, 2, 3, 100, 5]
+state = state-1
+# enumerate list and sort by eigenvalues
+# return index of relevant energy level
+state_ind = sorted(enumerate(w), key=lambda x: x[1])[state][0]
+
+
 #print v
-l = 1
-n = 6
 a = l/n
 b = []
 for x in range(0, n+1):
@@ -25,15 +41,26 @@ for x in range(0, n+1):
 
 c=[0]
 for y in range(0,n-1):
-    c.append(v[y,0])
+    c.append(v[y,state_ind])
 c.append(0)
-#print c
+#print 
 
-plt.plot(b, c, label='GS')
-#plt.plot(b, v[:,4], label='1st')
-#plt.plot(b, v[:,3], label='2nd')
-#plt.plot(b, v[:,2], label='3rd')
-#plt.plot(b, v[:,1], label='4th')
-#plt.legend()
+fig = plt.figure(figsize=(15,10))
+plt.plot(b, c, label='Energy state = %s' % str(state+1))
+#xt = np.linspace(0,l,n)
+#ansatz = np.sqrt(2/l)*np.sin((state+1)*pi*xt/l)
+#plt.plot(xt,ansatz, label="Ansatz")
+plt.title('1D square well', fontsize=30)
+plt.xlabel('$x_i$',fontsize=20)
+plt.ylabel('$\psi(x_i)$',fontsize=20)
+
+# calculate energy from eigenvalue !CURRENTLY IS FUCKT!
+energy = ((sc.hbar**2*w[state_ind])/ (2*sc.m_e*a**2))/sc.eV
+textstr = 'Energy = %s eV' % str(energy)
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+plt.text(0.04, 2.24, textstr, transform=ax.transAxes, fontsize=14,
+        verticalalignment='top', bbox=props)
+        
+plt.legend()
 plt.show()
-
+fig.savefig('1Dsqwell.png')
