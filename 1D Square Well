@@ -1,39 +1,135 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+Created on Wed Sep 30 17:35:32 2015
 
-This is a temporary script file.
+@author: DNSG
 """
-from __future__ import division
+
 import numpy as np
 from numpy import matrix
 from numpy import linalg
 import math
+from math import sqrt,sin,pi
 import matplotlib.pyplot as plt
-a = matrix('2,-1,0,0,0; -1,2,-1,0,0; 0,-1,2,-1,0; 0,0,-1,2,-1; 0,0,0,-1,2')
-#print a
-#print linalg.eig(a)
-w, v = linalg.eig(a)
-#print v
-l = 1
-n = 6
-a = l/n
-b = []
-for x in range(0, n+1):
-    b.append((l*x)/(n))
-#print b
+import scipy.constants as sc
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from matplotlib.mlab import griddata
 
-c=[0]
-for y in range(0,n-1):
-    c.append(v[y,0])
-c.append(0)
-#print c
+""" 
+2D well labelled in following pattern:
+  _____
+ |4 5 6|
+ |1 2 3|
+ |_____|
+"""     
+r = int(input("Enter number points in y axis: "))
+c = int(input("Enter number of points in x axis: "))
+x = float(input("Enter width (x axis) of well: "))
+y = float(input("Enter depth (y axis) of well: "))
+state = int(input("Enter energy state (GS=1): "))
+n = r*c
+state = state-1
+a = y/r # spacing in y axis
+b = x/c # spacing in x axis
 
-plt.plot(b, c, label='GS')
-#plt.plot(b, v[:,4], label='1st')
-#plt.plot(b, v[:,3], label='2nd')
-#plt.plot(b, v[:,2], label='3rd')
-#plt.plot(b, v[:,1], label='4th')
-#plt.legend()
+H = np.zeros((n,n))
+i,j = np.indices(H.shape)
+H[i==j] = 4.
+H[i==j-1] = -1.
+H[i==j+1] = -1.
+
+larger = 1
+smaller = 1
+if r > c:
+    larger = r
+    smaller = c
+elif r == c:
+    larger = r
+    smaller = r
+else:
+    larger = c
+    smaller = r
+
+H[i==j+larger] = -1
+H[i==j-larger] = -1
+for k in range(1,smaller):
+    ks = k*larger
+    if(ks)<=n:
+        H[ks-1,ks] = 0
+        H[ks,ks-1] = 0
+ 
+print(H)
+
+w, v = linalg.eig(H)
+# enumerate list and sort by eigenvalues
+# return index of relevant energy level
+state_ind = sorted(enumerate(w), key=lambda x: x[1])[state][0]
+
+#print("Eigenvalues:")
+#print(w)
+#print("Eigenvectors:")
+#print(v[:,state_ind])
+
+xt = []
+for i in range(0, c+2):
+    xt.append((x*i)/(c+1))
+    #print('xt[{}] = {}'.format(i, xt[i]))
+
+yt = []
+for i in range(0, r+2):
+    yt.append((y*i)/(r+1))
+    #print('yt[{}] = {}'.format(i, yt[i]))
+
+x_v = [0]
+for i in range(0,c):
+    x_v.append(v[i,state_ind])
+x_v.append(0)
+y_v = [0]
+for i in range(0, n-1, c):
+    y_v.append(v[i, state_ind])
+y_v.append(0)
+#for i in range(0,r+2):   
+    #print('y_v[{}] = {}'.format(i, y_v[i]))
+#for i in range(0,c+2):
+    #print('x_v[{}] = {}'.format(i, x_v[i]))
+
+# 2D PLOT
+
+"""
+plt.plot(xt, x_v, label='x axis')
+plt.plot(yt, y_v, label='y axis')
+
+plt.legend()
 plt.show()
+"""
+
+# 3D PLOT
+
+
+
+X, Y = np.meshgrid(xt, yt)
+
+z = v[:,state_ind].reshape((r,c))
+
+zt = np.insert(z,0,0, axis=1)
+ztt = np.insert(zt,c+1,0, axis=1)
+zttt = np.insert(ztt, 0,0,axis=0)
+zero = np.zeros((1,c+2))
+ztttt = np.append(zttt,zero, axis=0 )
+#print(ztttt)
+#Z = griddata(x_v,y_v,ztttt,xt,yt)
+#Z = np.meshgrid(ztttt)
+
+
+fig = plt.figure()
+#ax = fig.gca(projection='3d')
+#ax = Axes3D(fig)
+ax = fig.add_subplot(111, projection='3d')
+surf = ax.plot_surface(X,Y,ztttt, cmap=cm.coolwarm, cstride=1, rstride=1)
+#ax.set_zlim(-0.6, 0.1)
+fig.colorbar(surf)
+plt.show()
+
+
 
