@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Sep 30 17:35:32 2015
-
-@author: DNSG
-"""
 
 import numpy as np
 from numpy import matrix
@@ -12,124 +7,58 @@ import math
 from math import sqrt,sin,pi
 import matplotlib.pyplot as plt
 import scipy.constants as sc
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
-from matplotlib.mlab import griddata
 
-""" 
-2D well labelled in following pattern:
-  _____
- |4 5 6|
- |1 2 3|
- |_____|
-"""     
-r = int(input("Enter number points in y axis: "))
-c = int(input("Enter number of points in x axis: "))
-x = float(input("Enter width (x axis) of well: "))
-y = float(input("Enter depth (y axis) of well: "))
+        
+n = int(input("Enter number of steps: "))
+l = float(input("Enter width of well: "))
 state = int(input("Enter energy state (GS=1): "))
-n = r*c
-state = state-1
-a = y/r # spacing in y axis
-b = x/c # spacing in x axis
 
 H = np.zeros((n,n))
 i,j = np.indices(H.shape)
-H[i==j] = 4.
+H[i==j] = 2.
 H[i==j-1] = -1.
 H[i==j+1] = -1.
 
-larger = 1
-smaller = 1
-if r > c:
-    larger = r
-    smaller = c
-elif r == c:
-    larger = r
-    smaller = r
-else:
-    larger = c
-    smaller = r
 
-H[i==j+larger] = -1
-H[i==j-larger] = -1
-for k in range(1,smaller):
-    ks = k*larger
-    if(ks)<=n:
-        H[ks-1,ks] = 0
-        H[ks,ks-1] = 0
- 
 print(H)
 
 w, v = linalg.eig(H)
+
+#myList = [1, 2, 3, 100, 5]
+state = state-1
 # enumerate list and sort by eigenvalues
 # return index of relevant energy level
 state_ind = sorted(enumerate(w), key=lambda x: x[1])[state][0]
 
-#print("Eigenvalues:")
-#print(w)
-#print("Eigenvectors:")
-#print(v[:,state_ind])
+a = l/n
+b = []
+for x in range(0, n+1):
+    b.append((a*x))
+#print b
 
-xt = []
-for i in range(0, c+2):
-    xt.append((x*i)/(c+1))
-    #print('xt[{}] = {}'.format(i, xt[i]))
+c=[0]
+for y in range(0,n-1):
+    c.append(v[y,state_ind])
+c.append(0)
 
-yt = []
-for i in range(0, r+2):
-    yt.append((y*i)/(r+1))
-    #print('yt[{}] = {}'.format(i, yt[i]))
 
-x_v = [0]
-for i in range(0,c):
-    x_v.append(v[i,state_ind])
-x_v.append(0)
-y_v = [0]
-for i in range(0, n-1, c):
-    y_v.append(v[i, state_ind])
-y_v.append(0)
-#for i in range(0,r+2):   
-    #print('y_v[{}] = {}'.format(i, y_v[i]))
-#for i in range(0,c+2):
-    #print('x_v[{}] = {}'.format(i, x_v[i]))
+fig = plt.figure(figsize=(15,10))
+plt.plot(b, c, label='Energy state = %s' % str(state+1))
+xt = np.linspace(0,l,n)
+ansatz = np.sqrt(2.0/l)*np.sin((state+1)*pi*xt/l)
+plt.plot(xt,ansatz, label="Ansatz")
+plt.title('1D square well', fontsize=30)
+plt.xlabel('$x_i$',fontsize=20)
+plt.ylabel('$\psi(x_i)$',fontsize=20)
 
-# 2D PLOT
-
-"""
-plt.plot(xt, x_v, label='x axis')
-plt.plot(yt, y_v, label='y axis')
-
+# calculate energy from eigenvalue !CURRENTLY IS FUCKT!
+energy = ((sc.hbar**2*w[state_ind])/ (2*sc.m_e*a**2))/sc.eV
+textstr = 'Energy = %s eV' % str(energy)
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+#plt.text(0.04, 2.24, textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+        
 plt.legend()
 plt.show()
-"""
-
-# 3D PLOT
-
-
-
-X, Y = np.meshgrid(xt, yt)
-
-z = v[:,state_ind].reshape((r,c))
-
-zt = np.insert(z,0,0, axis=1)
-ztt = np.insert(zt,c+1,0, axis=1)
-zttt = np.insert(ztt, 0,0,axis=0)
-zero = np.zeros((1,c+2))
-ztttt = np.append(zttt,zero, axis=0 )
-#print(ztttt)
-#Z = griddata(x_v,y_v,ztttt,xt,yt)
-#Z = np.meshgrid(ztttt)
-
-
-fig = plt.figure()
-#ax = fig.gca(projection='3d')
-#ax = Axes3D(fig)
-ax = fig.add_subplot(111, projection='3d')
-surf = ax.plot_surface(X,Y,ztttt, cmap=cm.coolwarm, cstride=1, rstride=1)
-#ax.set_zlim(-0.6, 0.1)
-fig.colorbar(surf)
-plt.show()
-
+fig.savefig('1Dsqwell.png')
 
 
