@@ -22,14 +22,16 @@ from matplotlib.mlab import griddata
  |4 5 6|
  |1 2 3|
  |_____|
-"""     
-r = int(input("Enter number points in y axis: "))
+"""
 c = int(input("Enter number of points in x axis: "))
+r = int(input("Enter number points in y axis: "))
 x = float(input("Enter width (x axis) of well: "))
 y = float(input("Enter depth (y axis) of well: "))
-state = int(input("Enter energy state (GS=1): "))
+state_x = int(input("Enter energy state in x (GS=1): "))
+state_y = int(input("Enter energy state in y (GS=1): "))
 n = r*c
-state = state-1
+#state_x = state_x-1
+#state_y = state_y-1
 a = y/r # spacing in y axis
 b = x/c # spacing in x axis
 
@@ -63,9 +65,26 @@ print(H)
 
 w, v = linalg.eig(H)
 
+s=[]
+if state_x > state_y:
+    high_state = state_x
+    counter = 1
+else:
+    high_state = state_y
+    counter = 0
+
+for i in range(1,(1+high_state**2)):
+    for j in range(1,(1+high_state**2)):
+        if ((i**2)+(j**2)) < ((state_x**2)+(state_y**2)):
+            s.append((i**2)+(j**2))
+
+
+print(s)
+
 # enumerate list and sort by eigenvalues
 # return index of relevant energy level
-state_ind = sorted(enumerate(w), key=lambda x: x[1])[state][0]
+state_ind = sorted(enumerate(w), key=lambda x: x[1])[len(s)+counter][0]
+
 
 #print("Eigenvalues:")
 #print(w)
@@ -106,7 +125,8 @@ plt.show()
 
 # 3D PLOT
 X, Y = np.meshgrid(xt, yt)
-
+print(X)
+print(Y)
 # Reshape the eigenvector
 z = v[:,state_ind].reshape((r,c))
 zt = np.insert(z,0,0, axis=1)
@@ -114,10 +134,10 @@ ztt = np.insert(zt,c+1,0, axis=1)
 zttt = np.insert(ztt, 0,0,axis=0)
 zero = np.zeros((1,c+2))
 ztttt = np.append(zttt,zero, axis=0 )
+#print(ztttt)
 
-# Analytical solution
-ansatz = (2.0/np.sqrt(x*y))*np.sin((state+1)*pi*X/x)*np.sin((state+1)*pi*Y/y)
-
+# Analytical solution (normalised)
+ansatz = max(v[:,state_ind])*np.sin((state_x)*pi*X/x)*np.sin((state_y)*pi*Y/y)
 
 fig = plt.figure(figsize=(10,8))
 ax = fig.add_subplot(111, projection='3d')
@@ -127,4 +147,3 @@ ans = ax.plot_wireframe(X,Y,ansatz, cstride=1, rstride=1)
 fig.colorbar(surf)
 plt.show()
 fig.savefig('2Dwell.png')
-
