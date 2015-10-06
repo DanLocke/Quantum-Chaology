@@ -63,7 +63,39 @@ for k in range(1,smaller):
  
 print(H)
 
+"""
+# Include zeros
+G = np.zeros((n+2*c,n))
+j=1
+for i in range (1,n+1):
+    G[j,:] = H[i-1,:]
+    if i%c == 0:
+        j=j+3
+        
+    else:
+        j=j+1
+j=0
+for i in range(0,n):
+    if i%c == 0:
+        G = np.insert(G,j,0, axis=1)
+        G = np.insert(G,j+1,0, axis=1)
+        j = j+c+2
+G = np.delete(G,0,axis=1)
+G = np.insert(G,n+2*c-1,0,axis=1)
+for i in range(0,c+2):
+    G = np.insert(G,n+2*c+i,0,axis=1)
+    G = np.insert(G,0,0,axis=1)
+for i in range(0,c+2):
+    G = np.insert(G,n+2*c+i,0,axis=0)
+    G = np.insert(G,0,0,axis=0)
+    
+print(G)
+"""
+
+
+
 w, v = linalg.eig(H)
+#print(w,v)
 
 s=[]
 if state_x > state_y:
@@ -79,7 +111,7 @@ for i in range(1,(1+high_state**2)):
             s.append((i**2)+(j**2))
 
 
-print(s)
+#print(s)
 
 # enumerate list and sort by eigenvalues
 # return index of relevant energy level
@@ -125,23 +157,25 @@ plt.show()
 
 # 3D PLOT
 X, Y = np.meshgrid(xt, yt)
-print(X)
-print(Y)
+#print(X)
+#print(Y)
 # Reshape the eigenvector
 z = v[:,state_ind].reshape((r,c))
-zt = np.insert(z,0,0, axis=1)
-ztt = np.insert(zt,c+1,0, axis=1)
-zttt = np.insert(ztt, 0,0,axis=0)
+
+z = np.insert(z,0,0, axis=1)
+z = np.insert(z,c+1,0, axis=1)
+z = np.insert(z, 0,0,axis=0)
 zero = np.zeros((1,c+2))
-ztttt = np.append(zttt,zero, axis=0 )
-#print(ztttt)
+z = np.append(z,zero, axis=0 )
+#print(z)
+
 
 # Analytical solution (normalised)
 ansatz = max(v[:,state_ind])*np.sin((state_x)*pi*X/x)*np.sin((state_y)*pi*Y/y)
 
 fig = plt.figure(figsize=(10,8))
 ax = fig.add_subplot(111, projection='3d')
-surf = ax.plot_surface(X,Y,ztttt, cmap=cm.coolwarm, cstride=1, rstride=1)
+surf = ax.plot_surface(X,Y,z, cmap=cm.coolwarm, cstride=1, rstride=1)
 ans = ax.plot_wireframe(X,Y,ansatz, cstride=1, rstride=1)
 #ax.set_zlim(-1.0, 2.0)
 fig.colorbar(surf)
