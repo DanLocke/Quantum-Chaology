@@ -10,8 +10,8 @@ import scipy.constants as sc
 
         
 n = 500#int(input("Enter number of steps: "))
-l = 1e-3#float(input("Enter width of well: "))
-state = int(input("Enter energy state (GS=1): "))
+l = 1#float(input("Enter width of well: "))
+state_t = int(input("Enter energy state (GS=1): "))
 a = l/n
 
 H = np.zeros((n,n))
@@ -26,53 +26,66 @@ print(H)
 w, v = linalg.eig(H)
 
 #myList = [1, 2, 3, 100, 5]
-state = state-1
+state = state_t-1
 
 # enumerate list and sort by eigenvalues
 # return index of relevant energy level
 state_ind = sorted(enumerate(w), key=lambda x: x[1])[state][0]
 
 
-#print v
-
-b = []
-for x in range(0, n+1):
-    b.append((l*x)/(n))
-#print b
-
 c=[0]
 for y in range(0,n-1):
     c.append(v[y,state_ind])
 c.append(0)
+print(max(np.absolute(c)))
 
-
+xt = np.linspace(0,l,n+1)
 fig = plt.figure(figsize=(15,10))
-plt.plot(b, c, label='Energy state = %s' % str(state+1))
-xt = np.linspace(0,l,n)
-ansatz = max(c)*np.sin(((state+1)*np.pi*xt)/l)
-plt.plot(xt,ansatz, label="Ansatz")
+#plt.plot(xt, c, label='Energy state = %s' % str(state+1))
+ansatz = max(np.absolute(c))*np.sin(((state+1)*np.pi*xt)/l)
+plt.plot(xt,ansatz,label="Ansatz")
 plt.title('1D square well', fontsize=30)
 plt.xlabel('$x_i$',fontsize=20)
 plt.ylabel('$\psi(x_i)$',fontsize=20)
-print((sc.hbar**2*w[state_ind])/ (2*sc.m_e*a**2))
 
 # calculate energy from eigenvalue
-energy = (( ((sc.hbar**2)*w[state_ind])/ (2*sc.m_e*a**2)))/sc.eV
+energy = (( (w[state_ind])/ (2) ))
 k = ((state+1)*np.pi)/l
-ans_energy = (((sc.hbar**2)*(k**2)/ (2.*sc.m_e)) )/sc.eV
+ans_energy = ( (k**2)/ (2) )*a**2
 
-textstr = 'Energy = %s eV\nAnsatz energy = %s eV' %(str(energy),str(ans_energy))
+textstr = 'Energy = %s \nAnsatz energy = %s ' %(str(energy),str(ans_energy))
 props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 plt.text(0.0, 0, textstr, fontsize=14, horizontalalignment='left',
         verticalalignment='bottom', bbox=props)
         
 plt.legend()
 plt.show()
-fig.savefig('1Dsqwell.png')
+fig.savefig('1Dsqwell_%s.png' % str(state+1))
+
+nt = np.linspace(1,n,n)
+E = sorted(w/2)
+fig2 = plt.figure(figsize=(15,10))
+plt.plot(nt, E)
+plt.title('Energy vs n', fontsize=30)
+plt.xlabel('$n$',fontsize=20)
+plt.ylabel('$Energy$',fontsize=20)
+fig.savefig('1D_E_vs_n.png')
 
 
+#difference plot
+diff = c-ansatz
+fig3 = plt.figure(figsize=(15,10))
+plt.plot(xt, diff)
+plt.title('Difference plot', fontsize=30)
+plt.xlabel('$x_i$',fontsize=20)
+plt.ylabel('$\psi(x_i)$',fontsize=20)
+fig.savefig('1Ddifference_%s.png' % str(state+1))
 
-#print(v[:,state_ind])
-#print(H.dot(v[:,0]))
+'''
+xtt = np.linspace(0,1,1000)
+sint = np.sin(5000000000000*xtt)
+fig4 = plt.figure(figsize=(15,10))
+plt.plot(xtt, sint)
+'''
 
 
