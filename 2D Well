@@ -29,11 +29,9 @@ x = float(input("Enter width (x axis) of well: "))
 y = float(input("Enter depth (y axis) of well: "))
 state_x = int(input("Enter energy state in x (GS=1): "))
 state_y = int(input("Enter energy state in y (GS=1): "))
-#state_x = state_x-1
-#state_y = state_y-1
 a = y/r # spacing in y axis
 b = x/c # spacing in x axis
-#r = y/b
+#r = y/b # number of points in y axis
 n = r*c
 
 H = np.zeros((n,n))
@@ -41,6 +39,7 @@ i,j = np.indices(H.shape)
 H[i==j] = 4.
 H[i==j-1] = -1.
 H[i==j+1] = -1.
+
 
 larger = 1
 smaller = 1
@@ -61,7 +60,7 @@ for k in range(1,smaller):
     if(ks)<=n:
         H[ks-1,ks] = 0
         H[ks,ks-1] = 0
- 
+
 #print(H)
 
 """
@@ -93,10 +92,7 @@ for i in range(0,c+2):
 print(G)
 """
 
-
-
 w, v = linalg.eig(H)
-#print(w,v)
 
 s=[]
 if state_x > state_y:
@@ -110,30 +106,22 @@ for i in range(1,(1+high_state**2)):
     for j in range(1,(1+high_state**2)):
         if ((i**2)+(j**2)) < ((state_x**2)+(state_y**2)):
             s.append((i**2)+(j**2))
-
-
 #print(s)
 
 # enumerate list and sort by eigenvalues
 # return index of relevant energy level
 state_ind = sorted(enumerate(w), key=lambda x: x[1])[len(s)+counter][0]
-
+#print(state_ind)
 
 #print("Eigenvalues:")
 #print(w)
 #print("Eigenvectors:")
 #print(v[:,state_ind])
 
-xt = []
-for i in range(0, c+2):
-    xt.append((x*i)/(c+1))
-    #print('xt[{}] = {}'.format(i, xt[i]))
+xt = np.linspace(0,x,c+2)
+yt = np.linspace(0,y,r+2)
 
-yt = []
-for i in range(0, r+2):
-    yt.append((y*i)/(r+1))
-    #print('yt[{}] = {}'.format(i, yt[i]))
-
+"""
 x_v = [0]
 for i in range(0,c):
     x_v.append(v[i,state_ind])
@@ -147,8 +135,8 @@ y_v.append(0)
 #for i in range(0,c+2):
     #print('x_v[{}] = {}'.format(i, x_v[i]))
 
-# 2D PLOT
-"""
+    # 2D PLOT
+
 plt.plot(xt, x_v, label='x axis')
 plt.plot(yt, y_v, label='y axis')
 
@@ -156,14 +144,16 @@ plt.legend()
 plt.show()
 """
 
-# 3D PLOT
+    # 3D PLOT
 X, Y = np.meshgrid(xt, yt)
 #print(X)
 #print(Y)
 
 # Reshape the eigenvector
 z = v[:,state_ind].reshape((r,c))
+#print(z)
 
+# Add in boundary conditions
 z = np.insert(z,0,0, axis=1)
 z = np.insert(z,c+1,0, axis=1)
 z = np.insert(z, 0,0,axis=0)
@@ -172,7 +162,7 @@ z = np.append(z,zero, axis=0 )
 #print(z)
 
 # Energy
-E = (w[state_ind]*(sc.hbar**2))/(2*sc.m_e*(a**2))/sc.eV # Need new formula as diff a and b
+E = (w[state_ind]*(sc.hbar**2))/(2*sc.m_e*(b**2))/sc.eV
 print('Energy is', E, 'eV')
 
 # Analytical solution (normalised)
@@ -186,5 +176,10 @@ surf = ax.plot_surface(X,Y,z, cmap=cm.coolwarm, cstride=1, rstride=1)
 ans = ax.plot_wireframe(X,Y,ansatz, cstride=1, rstride=1)
 #ax.set_zlim(-1.0, 2.0)
 fig.colorbar(surf)
+#textstr = 'Energy = %s eV\nAnsatz energy = %s eV' %(str(E),str(ans_E))
+#print(textstr)
+#props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+#plt.text(5.0, 0.0, textstr, fontsize=14, horizontalalignment='left', verticalalignment='bottom', bbox=props)
+plt.legend()
 plt.show()
 fig.savefig('2Dwell.png')
