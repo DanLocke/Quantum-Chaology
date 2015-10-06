@@ -29,11 +29,12 @@ x = float(input("Enter width (x axis) of well: "))
 y = float(input("Enter depth (y axis) of well: "))
 state_x = int(input("Enter energy state in x (GS=1): "))
 state_y = int(input("Enter energy state in y (GS=1): "))
-n = r*c
 #state_x = state_x-1
 #state_y = state_y-1
 a = y/r # spacing in y axis
 b = x/c # spacing in x axis
+#r = y/b
+n = r*c
 
 H = np.zeros((n,n))
 i,j = np.indices(H.shape)
@@ -159,6 +160,7 @@ plt.show()
 X, Y = np.meshgrid(xt, yt)
 #print(X)
 #print(Y)
+
 # Reshape the eigenvector
 z = v[:,state_ind].reshape((r,c))
 
