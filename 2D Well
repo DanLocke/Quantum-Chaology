@@ -62,7 +62,7 @@ for k in range(1,smaller):
         H[ks-1,ks] = 0
         H[ks,ks-1] = 0
  
-print(H)
+#print(H)
 
 """
 # Include zeros
@@ -171,9 +171,14 @@ zero = np.zeros((1,c+2))
 z = np.append(z,zero, axis=0 )
 #print(z)
 
+# Energy
+E = (w[state_ind]*(sc.hbar**2))/(2*sc.m_e*(a**2))/sc.eV # Need new formula as diff a and b
+print('Energy is', E, 'eV')
 
 # Analytical solution (normalised)
 ansatz = max(v[:,state_ind])*np.sin((state_x)*pi*X/x)*np.sin((state_y)*pi*Y/y)
+ans_E = ((sc.hbar**2)*(np.pi**2)/(2*sc.m_e))*(((state_x**2)/(x**2))+((state_y**2)/(y**2)))/sc.eV
+print('Ansatz energy is', ans_E, 'eV')
 
 fig = plt.figure(figsize=(10,8))
 ax = fig.add_subplot(111, projection='3d')
