@@ -81,9 +81,16 @@ plt.xlabel('$x_i$',fontsize=20)
 plt.ylabel('$\psi(x_i)$',fontsize=20)
 fig3.savefig('1Ddifference_%s.png' % str(state+1))
 
-st = np.linspace(1,state+1,1)
+
+st = np.linspace(1,state+1,state+1)
 tot_ans_energy = ( ((((st)*np.pi)/l)**2)/ (2) )*a**2
-fig4 = plot.figure(figsize=(15,10))
+fig4 = plt.figure(figsize=(15,10))
+plt.plot(st,tot_ans_energy)
+plt.title('Energy ansatz plot', fontsize=30)
+plt.xlabel('$state$',fontsize=20)
+plt.ylabel('$E$',fontsize=20)
+fig4.savefig('1D_E_vs_state_%s.png' % str(state+1))
+
 '''
 xtt = np.linspace(0,1,1000)
 sint = np.sin(5000000000000*xtt)
