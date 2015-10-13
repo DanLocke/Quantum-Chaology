@@ -9,9 +9,10 @@ import matplotlib.pyplot as plt
 import scipy.constants as sc
 
         
-n = int(input("Enter number of steps: "))
-l = 1.0#float(input("Enter width of well: "))
+n = 500#int(input("Enter number of steps: "))
+l = 50.0#float(input("Enter width of well: "))
 state_t = int(input("Enter energy state (GS=1): "))
+
 #n = 10*state_t
 a = l/n
 
@@ -38,30 +39,44 @@ c=[0]
 for y in range(0,n):
     c.append(v[y,state_ind])
 c.append(0)
-print(max(np.absolute(c)))
+#print(max(np.absolute(c)))
 
+# Probability
+C = []
+for i in range(0,len(c)):
+    C.append(c[i]*c[i])
+    
+# Discrete Error
+sigma_psi = a**2
+print('Discrete Error on wavefunction = %s' % sigma_psi)
+sigma_p = []
+for i in range(0,len(c)):
+    sigma_p.append(2*c[i]*sigma_psi)
+#print('Discrete Error on probability = %s' % sigma_p)
+
+# Plot
 xt = np.linspace(0,l,n+2)
 fig = plt.figure(figsize=(15,10))
-plt.plot(xt, c, label='Energy state = %s' % str(state+1))
-ansatz = max(np.absolute(c))*np.sin(((state+1)*np.pi*xt)/l)
+plt.errorbar(xt, C, label='Energy state = %s' % str(state+1), fmt='.')#, yerr=sigma_p)
+ansatz = (max(np.absolute(c))*np.sin(((state+1)*np.pi*xt)/l))**2
 plt.plot(xt,ansatz,label="Ansatz")
 plt.title('1D square well', fontsize=30)
 plt.xlabel('$x_i$',fontsize=20)
-plt.ylabel('$\psi(x_i)$',fontsize=20)
+plt.ylabel('$|\psi(x_i)|^2$',fontsize=20)
 
 # calculate energy from eigenvalue
 energy = (( (w[state_ind])/ (2) ))
 k = ((state+1)*np.pi)/l
 ans_energy = ( (k**2)/ (2) )*a**2
-textstr = 'Energy = %s \nAnsatz energy = %s ' %(str(energy),str(ans_energy))
+textstr = 'Energy = %s \nAnsatz energy = %s \na = %s' %(str(energy),str(ans_energy),str(a))
 props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 plt.text(0.0, 0, textstr, fontsize=14, horizontalalignment='left',
-        verticalalignment='bottom', bbox=props)
-        
+        verticalalignment='bottom', bbox=props)    
 plt.legend()
 plt.show()
 fig.savefig('1Dsqwell_%s.png' % str(state+1))
 
+"""
 nt = np.linspace(1,n,n)
 E = sorted(w/2)
 fig2 = plt.figure(figsize=(15,10))
@@ -70,10 +85,10 @@ plt.title('Energy vs n', fontsize=30)
 plt.xlabel('$n$',fontsize=20)
 plt.ylabel('$Energy$',fontsize=20)
 fig2.savefig('1D_E_vs_n.png')
-
+"""
 
 #difference plot
-diff = c-ansatz
+diff = C-ansatz
 fig3 = plt.figure(figsize=(15,10))
 plt.plot(xt, diff)
 plt.title('Difference plot', fontsize=30)
@@ -82,6 +97,7 @@ plt.ylabel('$\psi(x_i)$',fontsize=20)
 fig3.savefig('1Ddifference_%s.png' % str(state+1))
 
 
+"""
 st = np.linspace(1,state+1,state+1)
 tot_ans_energy = ( ((((st)*np.pi)/l)**2)/ (2) )*a**2
 fig4 = plt.figure(figsize=(15,10))
@@ -90,10 +106,43 @@ plt.title('Energy ansatz plot', fontsize=30)
 plt.xlabel('$state$',fontsize=20)
 plt.ylabel('$E$',fontsize=20)
 fig4.savefig('1D_E_vs_state_%s.png' % str(state+1))
+"""
 
-'''
-xtt = np.linspace(0,1,1000)
-sint = np.sin(5000000000000*xtt)
-fig4 = plt.figure(figsize=(15,10))
-plt.plot(xtt, sint)
-'''
+# Both energies plot
+nt = np.linspace(1,n,n)
+E = sorted(w/2)
+tot_ans_energy = ( ((((nt)*np.pi)/l)**2)/ (2) )*a**2
+fig2 = plt.figure(figsize=(15,10))
+plt.plot(nt, E, label='Discrete solution')
+plt.plot(nt, tot_ans_energy, label='Analytic solution')
+#plt.xlim(0,n/2)
+plt.title('Energy (Discrete and Analytic) vs n', fontsize=30)
+plt.xlabel('$n$',fontsize=20)
+plt.ylabel('$Energy$',fontsize=20)
+plt.legend()
+plt.show()
+fig2.savefig('1D_dE_aE_vs_n.png')
+
+# Difference in energies plot
+E_diff = E - tot_ans_energy
+fig3  = plt.figure(figsize=(15,10))
+plt.plot(nt, E_diff)
+plt.xlim(0,n/2)
+plt.title('Energy Difference vs n', fontsize=30)
+plt.xlabel('$n$',fontsize=20)
+plt.ylabel('$Energy Difference$',fontsize=20)
+plt.show()
+fig3.savefig('1D_E_diff_vs_n.png')
+
+
+
+
+
+
+
+
+
+
+
+
+
