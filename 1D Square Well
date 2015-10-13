@@ -10,7 +10,7 @@ import scipy.constants as sc
 
         
 n = 500#int(input("Enter number of steps: "))
-l = 50.0#float(input("Enter width of well: "))
+l = 1#float(input("Enter width of well: "))
 state_t = int(input("Enter energy state (GS=1): "))
 
 #n = 10*state_t
@@ -22,7 +22,7 @@ H[i==j] = 2.
 H[i==j-1] = -1.
 H[i==j+1] = -1.
 
-print(H)
+#print(H)
 
 #print linalg.eig(a)
 w, v = linalg.eig(H)
@@ -46,13 +46,17 @@ C = []
 for i in range(0,len(c)):
     C.append(c[i]*c[i])
     
-# Discrete Error
+# Discrete Prob. Error
 sigma_psi = a**2
-print('Discrete Error on wavefunction = %s' % sigma_psi)
+#print('Discrete Error on wavefunction = %s' % sigma_psi)
 sigma_p = []
 for i in range(0,len(c)):
     sigma_p.append(2*c[i]*sigma_psi)
 #print('Discrete Error on probability = %s' % sigma_p)
+    
+# Energy Error
+sigma_E = np.absolute(sigma_psi*max(w)/min(w))/2
+
 
 # Plot
 xt = np.linspace(0,l,n+2)
@@ -113,36 +117,51 @@ nt = np.linspace(1,n,n)
 E = sorted(w/2)
 tot_ans_energy = ( ((((nt)*np.pi)/l)**2)/ (2) )*a**2
 fig2 = plt.figure(figsize=(15,10))
-plt.plot(nt, E, label='Discrete solution')
+plt.errorbar(nt, E, label='Discrete solution', yerr=sigma_E)
 plt.plot(nt, tot_ans_energy, label='Analytic solution')
 #plt.xlim(0,n/2)
-plt.title('Energy (Discrete and Analytic) vs n', fontsize=30)
-plt.xlabel('$n$',fontsize=20)
+plt.title('Energy (Discrete and Analytic) vs state', fontsize=30)
+plt.xlabel('$state$',fontsize=20)
 plt.ylabel('$Energy$',fontsize=20)
 plt.legend()
 plt.show()
-fig2.savefig('1D_dE_aE_vs_n.png')
+fig2.savefig('1D_dE_aE_vs_state.png')
 
 # Difference in energies plot
-E_diff = E - tot_ans_energy
-fig3  = plt.figure(figsize=(15,10))
-plt.plot(nt, E_diff)
+E_diff = np.absolute(E - tot_ans_energy)
+# When does analytic exceed error
+for i in range(0,n):
+    if E_diff[i] >= sigma_E:
+        exceed = i-1
+        break
+
+fig4  = plt.figure(figsize=(15,10))
+plt.plot((exceed,exceed),(0,max(E_diff)), label='Maximum value within error = %s' % exceed)
+plt.plot(nt, E_diff, label='Energy difference')
+plt.plot((1,n), (sigma_E,sigma_E), label='Error on discrete energy')
 plt.xlim(0,n/2)
+plt.ylim(0,0.5)
 plt.title('Energy Difference vs n', fontsize=30)
-plt.xlabel('$n$',fontsize=20)
+plt.xlabel('$state$',fontsize=20)
 plt.ylabel('$Energy Difference$',fontsize=20)
+plt.legend()
 plt.show()
-fig3.savefig('1D_E_diff_vs_n.png')
+fig4.savefig('1D_E_diff_vs_state.png')
+
+print('Energy state = %s' % str(state+1))
+print('Discrete energy = %s' % energy)
+print('Error on energy = %s' % sigma_E)
+print('Energy difference = %s' % E_diff[state])
 
 
-
-
-
-
-
-
-
-
+h = np.zeros((n,n))
+i,j = np.indices(h.shape)
+h[i,j] = sigma_psi
+print(h)
+norm = linalg.norm(h)
+print(norm)
+sigma_E2 = np.absolute(norm*max(w)/min(w))/2
+print(sigma_E2)
 
 
 
