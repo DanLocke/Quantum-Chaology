@@ -23,10 +23,10 @@ from matplotlib.mlab import griddata
  |1 2 3|
  |_____|
 """
-c = 50#int(input("Enter number of points in x axis: "))
-r = 50#int(input("Enter number points in y axis: "))
-x = 1#float(input("Enter width (x axis) of well: "))
-y = 4#float(input("Enter depth (y axis) of well: "))
+c = 30#int(input("Enter number of points in x axis: "))
+r = 30#int(input("Enter number points in y axis: "))
+x = 1.#float(input("Enter width (x axis) of well: "))
+y = 4.#float(input("Enter depth (y axis) of well: "))
 state_x = 2#int(input("Enter energy state in x (GS=1): "))
 state_y = 1#int(input("Enter energy state in y (GS=1): "))
 a = x/c # spacing in x axis
@@ -36,7 +36,7 @@ n = r*c
 
 H = np.zeros((n,n))
 i,j = np.indices(H.shape)
-H[i==j] = 4./(a*b)
+H[i==j] = 2*((1/a**2)+(1/b**2))
 H[i==j-1] = -1./a**2
 H[i==j+1] = -1./a**2
 
@@ -104,16 +104,18 @@ else:
 
 big_step = max(a,b)
 small_step = min(a,b)
-
+deg_count = 0 
 for i in range(1,n):
     for j in range(1,n):
         if ((i**2/a**2)+(j**2/b**2)) < ((state_x**2/a**2)+(state_y**2/b**2)):
             s.append((i**2)+(j**2))
             print(i,j)
+        if ((i**2/a**2)+(j**2/b**2)) == ((state_x**2/a**2)+(state_y**2/b**2)):
+            deg_count = deg_count+1
 print('Number state in list = %i ' % len(s))
-print(1)
-print(((1**2/a**2)+(9**2/b**2)))
-print(((2**2/a**2)+(5**2/b**2)))
+print('DEGENERACY COUNT: %i' %deg_count)
+#print(((1**2/a**2)+(9**2/b**2)))
+#print(((2**2/a**2)+(5**2/b**2)))
 
 # enumerate list and sort by eigenvalues
 # return index of relevant energy level
