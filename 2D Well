@@ -1,194 +1,96 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 30 17:35:32 2015
+Created on Tue Oct 13 14:03:57 2015
 
-@author: DNSG
+@author: mbyx9dl2
 """
-
 import numpy as np
-from numpy import matrix
-from numpy import linalg
-import math
-from math import sqrt,sin,pi
 import matplotlib.pyplot as plt
-import scipy.constants as sc
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
-from matplotlib.mlab import griddata
+from mpl_toolkits.mplot3d import Axes3D
+import scipy.integrate
 
-""" 
-2D well labelled in following pattern:
-  _____
- |4 5 6|
- |1 2 3|
- |_____|
-"""
-c = 30#int(input("Enter number of points in x axis: "))
-r = 30#int(input("Enter number points in y axis: "))
-x = 1.#float(input("Enter width (x axis) of well: "))
-y = 4.#float(input("Enter depth (y axis) of well: "))
-state_x = 2#int(input("Enter energy state in x (GS=1): "))
-state_y = 1#int(input("Enter energy state in y (GS=1): "))
-a = x/c # spacing in x axis
-b = y/r # spacing in y axis
-#r = y/b # number of points in y axis
-n = r*c
-
-H = np.zeros((n,n))
-i,j = np.indices(H.shape)
-H[i==j] = 2*((1/a**2)+(1/b**2))
-H[i==j-1] = -1./a**2
-H[i==j+1] = -1./a**2
-
-
-larger = 1
-smaller = 1
-if r > c:
-    larger = r
-    smaller = c
-elif r == c:
-    larger = r
-    smaller = r
-else:
-    larger = c
-    smaller = r
-
-H[i==j+larger] = -1./b**2
-H[i==j-larger] = -1./b**2
-for k in range(1,smaller):
-    ks = k*larger
-    if(ks)<=n:
-        H[ks-1,ks] = 0
-        H[ks,ks-1] = 0
-
-print(H)
-
-"""
-# Include zeros
-G = np.zeros((n+2*c,n))
-j=1
-for i in range (1,n+1):
-    G[j,:] = H[i-1,:]
-    if i%c == 0:
-        j=j+3
-        
-    else:
-        j=j+1
-j=0
-for i in range(0,n):
-    if i%c == 0:
-        G = np.insert(G,j,0, axis=1)
-        G = np.insert(G,j+1,0, axis=1)
-        j = j+c+2
-G = np.delete(G,0,axis=1)
-G = np.insert(G,n+2*c-1,0,axis=1)
-for i in range(0,c+2):
-    G = np.insert(G,n+2*c+i,0,axis=1)
-    G = np.insert(G,0,0,axis=1)
-for i in range(0,c+2):
-    G = np.insert(G,n+2*c+i,0,axis=0)
-    G = np.insert(G,0,0,axis=0)
+def createMatrix(x, y, c, r):
+    a = x/c # spacing in x axis
+    b = y/r # spacing in y axis
+    n = r*c
     
-print(G)
-"""
+    H = np.zeros((n,n))
+    i,j = np.indices(H.shape)
+    H[i==j] = 2*((a**2)+(b**2))
+    H[i==j-1] = -b**2
+    H[i==j+1] = -b**2
+    
+    
+    larger = max(r,c)
+    smaller = min(r,c)
+    if r == c:
+        larger = r
+        smaller = r
+    
+    H[i==j+larger] = -a**2
+    H[i==j-larger] = -a**2
+    for k in range(1,smaller):
+        ks = k*larger
+        if(ks)<=n:
+            H[ks-1,ks] = 0
+            H[ks,ks-1] = 0
+    return H;
+    #print(H)
+    
+def findStateNumber( state_x, state_y):
+    # currently doesn't return correct state at higher state indices
+    counter=0
+    if state_x > state_y:
+        counter = 1
+    
+    
+    big_step = max(a,b)
+    small_step = min(a,b)
+    deg_count = 0 
+    for i in range(1,n):
+        for j in range(1,n):
+            if ((i**2/a**2)+(j**2/b**2)) < ((state_x**2/a**2)+(state_y**2/b**2)):
+                s.append((i**2)+(j**2))
+                print(i,j)
+            if ((i**2/a**2)+(j**2/b**2)) == ((state_x**2/a**2)+(state_y**2/b**2)):
+                deg_count = deg_count+1
+    print('Number state in list = %i ' % len(s))
+    print('DEGENERACY COUNT: %i' %deg_count)
+    
+def arrayFromZ(v, c, r):
+    # Reshape the eigenvector
+    z = v.reshape((r,c))
+    # Add in boundary conditions
+    z = np.insert(z,0,0, axis=1)
+    z = np.insert(z,c+1,0, axis=1)
+    z = np.insert(z, 0,0,axis=0)
+    zero = np.zeros((1,c+2))
+    z = np.append(z,zero, axis=0 )
+    z = z*z
+    return z
 
-w, v = linalg.eig(H)
+def plot2Dpsi(X,Y,z,ansatz):
 
-s=[]
-if state_x > state_y:
-    high_state = state_x
-    counter = 1
-else:
-    high_state = state_y
-    counter = 0
-
-big_step = max(a,b)
-small_step = min(a,b)
-deg_count = 0 
-for i in range(1,n):
-    for j in range(1,n):
-        if ((i**2/a**2)+(j**2/b**2)) < ((state_x**2/a**2)+(state_y**2/b**2)):
-            s.append((i**2)+(j**2))
-            print(i,j)
-        if ((i**2/a**2)+(j**2/b**2)) == ((state_x**2/a**2)+(state_y**2/b**2)):
-            deg_count = deg_count+1
-print('Number state in list = %i ' % len(s))
-print('DEGENERACY COUNT: %i' %deg_count)
-#print(((1**2/a**2)+(9**2/b**2)))
-#print(((2**2/a**2)+(5**2/b**2)))
-
-# enumerate list and sort by eigenvalues
-# return index of relevant energy level
-state_ind = sorted(enumerate(w), key=lambda x: x[1])[len(s)+counter][0]
-#print(state_ind)
-
-#print("Eigenvalues:")
-#print(w)
-#print("Eigenvectors:")
-#print(v[:,state_ind])
-
-xt = np.linspace(0,x,c+2)
-yt = np.linspace(0,y,r+2)
-
-"""
-x_v = [0]
-for i in range(0,c):
-    x_v.append(v[i,state_ind])
-x_v.append(0)
-y_v = [0]
-for i in range(0, n-1, c):
-    y_v.append(v[i, state_ind])
-y_v.append(0)
-#for i in range(0,r+2):   
-    #print('y_v[{}] = {}'.format(i, y_v[i]))
-#for i in range(0,c+2):
-    #print('x_v[{}] = {}'.format(i, x_v[i]))
-
-    # 2D PLOT
-
-plt.plot(xt, x_v, label='x axis')
-plt.plot(yt, y_v, label='y axis')
-
-plt.legend()
-plt.show()
-"""
-
-    # 3D PLOT
-X, Y = np.meshgrid(xt, yt)
-#print(X)
-#print(Y)
-
-# Reshape the eigenvector
-z = v[:,state_ind].reshape((r,c))
-#print(z)
-
-# Add in boundary conditions
-z = np.insert(z,0,0, axis=1)
-z = np.insert(z,c+1,0, axis=1)
-z = np.insert(z, 0,0,axis=0)
-zero = np.zeros((1,c+2))
-z = np.append(z,zero, axis=0 )
-#print(z)
-
-# Energy
-E = (w[state_ind]*(sc.hbar**2))/(2*sc.m_e*(b**2))/sc.eV
-print('Energy is', E, 'eV')
-
-# Analytical solution (normalised)
-ansatz = max(v[:,state_ind])*np.sin((state_x)*pi*X/x)*np.sin((state_y)*pi*Y/y)
-ans_E = ((sc.hbar**2)*(np.pi**2)/(2*sc.m_e))*(((state_x**2)/(x**2))+((state_y**2)/(y**2)))/sc.eV
-print('Ansatz energy is', ans_E, 'eV')
-
-fig = plt.figure(figsize=(10,8))
-ax = fig.add_subplot(111, projection='3d')
-surf = ax.plot_surface(X,Y,z, cmap=cm.coolwarm, cstride=1, rstride=1)
-ans = ax.plot_wireframe(X,Y,-ansatz, cstride=1, rstride=1)
-#ax.set_zlim(-1.0, 2.0)
-fig.colorbar(surf)
-#textstr = 'Energy = %s eV\nAnsatz energy = %s eV' %(str(E),str(ans_E))
-#print(textstr)
-#props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-#plt.text(5.0, 0.0, textstr, fontsize=14, horizontalalignment='left', verticalalignment='bottom', bbox=props)
-plt.legend()
-plt.show()
-fig.savefig('2Dwell.png')
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(111, projection='3d')
+    surf = ax.plot_surface(X,Y,z, cmap=cm.coolwarm, cstride=1, rstride=1)
+    ans = ax.plot_wireframe(X,Y,ansatz, cstride=1, rstride=1)
+    fig.colorbar(surf)
+    plt.xlabel('$x_i$',fontsize=20)
+    plt.ylabel('$y_i$',fontsize=20)
+    ax.set_zlabel('$|\psi|^2$',fontsize=20)
+    plt.legend()
+    plt.show()
+    fig.savefig('2Dwell.png')
+    
+def plotEnergies(nt, E, Et):
+    fig2 = plt.figure(figsize=(15,10))
+    plt.plot(nt, E, label='Numeric')
+    plt.plot(nt,Et, label='Analytic')
+    plt.title('Energy vs n', fontsize=30)
+    plt.xlabel('$n$',fontsize=20)
+    plt.ylabel('$Energy$',fontsize=20)
+    plt.legend()
+    plt.show()
+    fig2.savefig('2D_E_vs_n.png')
