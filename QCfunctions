@@ -8,8 +8,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
-import scipy.integrate
 
+def inside(i,j, c, r):
+    if i==1:# ( ( j-((c-((r+1)/2)))**2+( i-((r+1)/2))**2 ) <= ((r+1)/2)**2:
+        return 1
+    else:
+        return 0
+
+def circle(x,c,r):
+    x_or = (c-((r+1)/2))
+    y_or = (r+1)/2
+    y = np.sqrt(0 - (x-x_or)**2)+y_or
+    return y
+    
 def createMatrix(x, y, c, r):
     a = x/c # spacing in x axis
     b = y/r # spacing in y axis
