@@ -9,6 +9,7 @@ import numpy as np
 from numpy import linalg
 import matplotlib.pyplot as plt
 import scipy.constants as sc
+import scipy.integrate
 import QCfunctions as qcf
 
 """ 
@@ -18,17 +19,38 @@ import QCfunctions as qcf
  |4 5 6|
  |_____|
 """
-c = 30#int(input("Enter number of points in x axis: "))
-r = 29#int(input("Enter number points in y axis: "))
+c = 9#int(input("Enter number of points in x axis: "))
+r = 9#int(input("Enter number points in y axis: "))
 x = 1.#float(input("Enter width (x axis) of well: "))
 y = 1.#float(input("Enter depth (y axis) of well: "))
 #state_x = 2#int(input("Enter energy state in x (GS=1): "))
 #state_y = 1#int(input("Enter energy state in y (GS=1): "))
 
+print('INSIDE? %i' %qcf.inside(1,5,c,r))
 a = x/c # spacing in x axis
 b = y/r # spacing in y axis
 n = r*c
 
+TEST=[]
+xmap=[]
+ymap=[]
+for i in range(1,r+1):
+    for j in range(1,c+1):
+        if qcf.inside(i,j,c,r) == 1: 
+            TEST.append((j,i))
+            xmap.append(j)
+            ymap.append(-i)
+            
+print(TEST)
+
+
+fig = plt.figure(figsize=(15,10))
+plt.plot(xmap, ymap, 'ro')
+plt.plot(xmap)
+plt.title('Points', fontsize=30)
+plt.xlabel('$x$',fontsize=20)
+plt.ylabel('$y$',fontsize=20)
+plt.show()
 H = qcf.createMatrix(x,y,c,r)
 w, v = linalg.eig(H)
 
@@ -45,7 +67,7 @@ qcf.plot2Dpsi(X,Y,z,0)
 
 state_x = 1#int(input("Enter energy state in x (GS=1): "))
 state_y = 1#int(input("Enter energy state in y (GS=1): "))
-
+"""
 ansatz = ( (2/np.sqrt(x*y))*np.sin((state_x)*np.pi*X/x)*np.sin((state_y)*np.pi*Y/y) )**2
 Ix=[]
 for i in range(0,c+1):
@@ -54,7 +76,7 @@ for i in range(0,c+1):
 I = scipy.integrate.simps(Ix, x=yt)
 z=z/I
 qcf.plot2Dpsi(X,Y,z,ansatz)
-
+"""
 
 
 # Energy
