@@ -10,7 +10,7 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 def inside(i,j, c, r):
-    if  ( j-(c-((r+1)/2))**2+( i-((r+1)/2))**2 ) <= ((r+1)/2)**2:
+    if  ( j-(c+1-((r+1)/2))**2+( i-((r+1)/2))**2 ) <= ((r+1)/2)**2:
         return 1
     else:
         return 0
