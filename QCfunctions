@@ -10,16 +10,34 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 def inside(i,j, c, r):
-    if i==1:# ( ( j-((c-((r+1)/2)))**2+( i-((r+1)/2))**2 ) <= ((r+1)/2)**2:
+    xr = (c+1)-(r+1)/2
+    yr = (r+1)/2
+    xl = (r+1)/2
+    yl = yr
+    R = (r+1)/2-1
+    
+    if (j>=xl) and (j<=xr):
         return 1
     else:
-        return 0
-
-def circle(x,c,r):
-    x_or = (c-((r+1)/2))
-    y_or = (r+1)/2
-    y = np.sqrt(0 - (x-x_or)**2)+y_or
-    return y
+        if(j<xl)and((j-xl)**2+(i-yl)**2<=R**2):
+            return 1
+        elif(j>xr)and((j-xr)**2+(i-yr)**2<=R**2):
+            return 1
+        else: return 0
+        
+def circle(x, r):
+    R = (r+1+1)/2
+    y = R+np.sqrt(R**2-(x-R)**2)
+    return -y
+    
+def I(i,j,c):
+    I = (i-1)*c+j
+    return I
+    
+def ij(I,c):
+    i = (I-1)//c +1
+    j = (I-1)%c +1
+    return i,j
     
 def createMatrix(x, y, c, r):
     a = x/c # spacing in x axis
