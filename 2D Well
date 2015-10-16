@@ -19,10 +19,10 @@ import QCfunctions as qcf
  |4 5 6|
  |_____|
 """
-c = 9#int(input("Enter number of points in x axis: "))
-r = 9#int(input("Enter number points in y axis: "))
-x = 1.#float(input("Enter width (x axis) of well: "))
-y = 1.#float(input("Enter depth (y axis) of well: "))
+c =50#int(input("Enter number of points in x axis: "))
+r = 19#int(input("Enter number points in y axis: "))
+x = 10.#float(input("Enter width (x axis) of well: "))
+y = 10.#float(input("Enter depth (y axis) of well: "))
 #state_x = 2#int(input("Enter energy state in x (GS=1): "))
 #state_y = 1#int(input("Enter energy state in y (GS=1): "))
 
@@ -34,19 +34,24 @@ n = r*c
 TEST=[]
 xmap=[]
 ymap=[]
+
 for i in range(1,r+1):
     for j in range(1,c+1):
         if qcf.inside(i,j,c,r) == 1: 
             TEST.append((j,i))
-            xmap.append(j)
+            xmap.append(j)            
             ymap.append(-i)
-            
-print(TEST)
+              
+         
+print(xmap)
 
 
-fig = plt.figure(figsize=(15,10))
+fig = plt.figure(figsize=(15,15))
 plt.plot(xmap, ymap, 'ro')
-plt.plot(xmap)
+#circle1=plt.Circle((5,-5),4)
+#fig.gca().add_artist(circle1)
+# here must be something like circle.plot() or not?
+plt.show()
 plt.title('Points', fontsize=30)
 plt.xlabel('$x$',fontsize=20)
 plt.ylabel('$y$',fontsize=20)
