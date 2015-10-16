@@ -1,0 +1,107 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Oct 13 14:03:57 2015
+
+@author: mbyx9dl2
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
+
+def inside(i,j, c, r):
+    if  ( j-(c-((r+1)/2))**2+( i-((r+1)/2))**2 ) <= ((r+1)/2)**2:
+        return 1
+    else:
+        return 0
+
+def circle(x,c,r):
+    x_or = (c-((r+1)/2))
+    y_or = (r+1)/2
+    y = np.sqrt(0 - (x-x_or)**2)+y_or
+    return y
+    
+def createMatrix(x, y, c, r):
+    a = x/c # spacing in x axis
+    b = y/r # spacing in y axis
+    n = r*c
+    
+    H = np.zeros((n,n))
+    i,j = np.indices(H.shape)
+    H[i==j] = 2*((a**2)+(b**2))
+    H[i==j-1] = -b**2
+    H[i==j+1] = -b**2
+    
+    
+    larger = max(r,c)
+    smaller = min(r,c)
+    if r == c:
+        larger = r
+        smaller = r
+    
+    H[i==j+larger] = -a**2
+    H[i==j-larger] = -a**2
+    for k in range(1,smaller):
+        ks = k*larger
+        if(ks)<=n:
+            H[ks-1,ks] = 0
+            H[ks,ks-1] = 0
+    return H;
+    #print(H)
+    
+def findStateNumber( state_x, state_y):
+    # currently doesn't return correct state at higher state indices
+    counter=0
+    if state_x > state_y:
+        counter = 1
+    
+    
+    big_step = max(a,b)
+    small_step = min(a,b)
+    deg_count = 0 
+    for i in range(1,n):
+        for j in range(1,n):
+            if ((i**2/a**2)+(j**2/b**2)) < ((state_x**2/a**2)+(state_y**2/b**2)):
+                s.append((i**2)+(j**2))
+                print(i,j)
+            if ((i**2/a**2)+(j**2/b**2)) == ((state_x**2/a**2)+(state_y**2/b**2)):
+                deg_count = deg_count+1
+    print('Number state in list = %i ' % len(s))
+    print('DEGENERACY COUNT: %i' %deg_count)
+    
+def arrayFromZ(v, c, r):
+    # Reshape the eigenvector
+    z = v.reshape((r,c))
+    # Add in boundary conditions
+    z = np.insert(z,0,0, axis=1)
+    z = np.insert(z,c+1,0, axis=1)
+    z = np.insert(z, 0,0,axis=0)
+    zero = np.zeros((1,c+2))
+    z = np.append(z,zero, axis=0 )
+    z = z*z
+    return z
+
+def plot2Dpsi(X,Y,z,ansatz):
+
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(111, projection='3d')
+    surf = ax.plot_surface(X,Y,z, cmap=cm.coolwarm, cstride=1, rstride=1)
+    ans = ax.plot_wireframe(X,Y,ansatz, cstride=1, rstride=1)
+    fig.colorbar(surf)
+    plt.xlabel('$x_i$',fontsize=20)
+    plt.ylabel('$y_i$',fontsize=20)
+    ax.set_zlabel('$|\psi|^2$',fontsize=20)
+    plt.legend()
+    plt.show()
+    fig.savefig('2Dwell.png')
+    
+def plotEnergies(nt, E, Et):
+    fig2 = plt.figure(figsize=(15,10))
+    plt.plot(nt, E, label='Numeric')
+    plt.plot(nt,Et, label='Analytic')
+    plt.title('Energy vs n', fontsize=30)
+    plt.xlabel('$n$',fontsize=20)
+    plt.ylabel('$Energy$',fontsize=20)
+    plt.legend()
+    plt.show()
+    fig2.savefig('2D_E_vs_n.png')
