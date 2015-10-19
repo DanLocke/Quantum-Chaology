@@ -19,10 +19,10 @@ import QCfunctions as qcf
  |4 5 6|
  |_____|
 """
-c = 9#int(input("Enter number of points in x axis: "))
-r = 9#int(input("Enter number points in y axis: "))
-x = 1.#float(input("Enter width (x axis) of well: "))
-y = 1.#float(input("Enter depth (y axis) of well: "))
+c =4#int(input("Enter number of points in x axis: "))
+r = 3#int(input("Enter number points in y axis: "))
+x = 10.#float(input("Enter width (x axis) of well: "))
+y = 10.#float(input("Enter depth (y axis) of well: "))
 #state_x = 2#int(input("Enter energy state in x (GS=1): "))
 #state_y = 1#int(input("Enter energy state in y (GS=1): "))
 
@@ -34,26 +34,41 @@ n = r*c
 TEST=[]
 xmap=[]
 ymap=[]
+C=[]
 for i in range(1,r+1):
+    counter = 0
     for j in range(1,c+1):
         if qcf.inside(i,j,c,r) == 1: 
             TEST.append((j,i))
             xmap.append(j)
+            counter= counter +1
             ymap.append(i)
-            
-print(TEST)
+    C.append(counter)         
+         
+#print(xmap)
+#print(ymap)
+#print(C)
+#test = qcf.I(3,2,C)
+#print(test)
+         
+print(qcf.genMatrix(xmap,ymap))
+    
+#for i in range(0, 8):
+#    print(qcf.genMatrix(xmap, ymap, i))
 
 
-fig = plt.figure(figsize=(15,10))
+fig = plt.figure(figsize=(15,15))
 plt.plot(xmap, ymap, 'ro')
-#plt.plot(xmap)
+#circle1=plt.Circle((5,-5),4)
+#fig.gca().add_artist(circle1)
+# here must be something like circle.plot() or not?
 plt.title('Points', fontsize=30)
 plt.xlabel('$x$',fontsize=20)
 plt.ylabel('$y$',fontsize=20)
 plt.show()
 H = qcf.createMatrix(x,y,c,r)
 w, v = linalg.eig(H)
-
+#print(v)
 # enumerate list and sort by eigenvalues, return index of relevant energy level
 # here m labels mth energy level (in sorted list of energies)
 m=0
@@ -63,7 +78,7 @@ xt = np.linspace(0,x,c+2)
 yt = np.linspace(0,y,r+2)
 X, Y = np.meshgrid(xt, yt)
 z = qcf.arrayFromZ(v[:,state_ind], c, r)
-qcf.plot2Dpsi(X,Y,z,0)
+#qcf.plot2Dpsi(X,Y,z,0)
 
 state_x = 1#int(input("Enter energy state in x (GS=1): "))
 state_y = 1#int(input("Enter energy state in y (GS=1): "))
@@ -81,10 +96,10 @@ qcf.plot2Dpsi(X,Y,z,ansatz)
 
 # Energy
 En = (w[state_ind]/2)
-print('Energy is', En)
+#print('Energy is', En)
 # Analytical solution (normalised)
 ans_E = (( (state_x*np.pi*b/c)**2+(state_y*np.pi*a/r)**2 )*0.5 )
-print('Ansatz energy is', ans_E)
+#print('Ansatz energy is', ans_E)
 
 Et = []
 for i in range(1,c+1):
@@ -94,4 +109,4 @@ for i in range(1,c+1):
 nt = np.linspace(1,n,n)
 E = sorted(w/2)
 Et = sorted(Et)
-qcf.plotEnergies(nt, E, Et)
+#qcf.plotEnergies(nt, E, Et)
