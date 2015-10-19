@@ -135,6 +135,20 @@ def findStateNumber( state_x, state_y):
     print('DEGENERACY COUNT: %i' %deg_count)
     
 def arrayFromZ(v, c, r, C):
+'''
+import numpy as np
+c=4
+r=3
+a = np.zeros((r+2,c+2))
+
+b = [[1,2],[2,3,4,5],[6,7]]
+C=[2,4,2]
+
+for i in range(0,r):
+    for j in range(0,C[i]): 
+        np.put(a[i+1], [(c+2-C[i])/2+j], b[i][j])
+print(a)
+'''
     Colsum = 0
     z=[None]*r
     for i in range(0,r):
