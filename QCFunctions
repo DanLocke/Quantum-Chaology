@@ -10,16 +10,81 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 def inside(i,j, c, r):
-    if  ( j-(c+1-((r+1)/2))**2+( i-((r+1)/2))**2 ) <= ((r+1)/2)**2:
+    xr = (c+1)-(r+1)/2
+    yr = (r+1)/2
+    xl = (r+1)/2
+    yl = yr
+    R = (r+1)/2-1
+    
+    if (j>=xl) and (j<=xr):
         return 1
     else:
-        return 0
-
-def circle(x,c,r):
-    x_or = (c-((r+1)/2))
-    y_or = (r+1)/2
-    y = np.sqrt(0 - (x-x_or)**2)+y_or
-    return y
+        if(j<xl)and((j-xl)**2+(i-yl)**2<=R**2):
+            return 1
+        elif(j>xr)and((j-xr)**2+(i-yr)**2<=R**2):
+            return 1
+        else: return 0
+        
+def genMatrix(i,j):
+    M = []
+    for marker in range(0,len(i)):
+        R=[None]*len(i)
+        for k in range(0, len(i)):
+            
+            if marker == 0:
+                if k == marker:
+                    R[k] = 2
+                elif (i[k] == i[marker]+1 and j[k] == j[marker]):
+                    R[k] = -1
+                elif (i[k] == i[marker] and j[k] == j[marker]+1):
+                    R[k] = -1
+                else:
+                    R[k] = 0
+                    
+            elif marker == (len(i)-1):
+                if k == marker:
+                    R[k] = 2
+                elif (i[k] == i[marker]-1 and j[k] == j[marker]):
+                    R[k] = -1        
+                elif (i[k] == i[marker] and j[k] == j[marker]-1):
+                    R[k] = -1
+                else:
+                    R[k] = 0
+                    
+            else:
+                if k == marker:
+                    R[k] = 2
+                elif (i[k] == i[marker]+1 and j[k] == j[marker]):
+                    R[k] = -1
+                elif (i[k] == i[marker]-1 and j[k] == j[marker]):
+                    R[k] = -1
+                elif (i[k] == i[marker] and j[k] == j[marker]+1):
+                    R[k] = -1
+                elif (i[k] == i[marker] and j[k] == j[marker]-1):
+                    R[k] = -1
+                else:
+                    R[k] = 0
+        M.append(R)
+    M = np.array(M)
+    return M
+        
+        
+def circle(x, r):
+    R = (r+1+1)/2
+    y = R+np.sqrt(R**2-(x-R)**2)
+    return -y
+    
+def I(i,j, C):
+    I=0
+    for k in range(0,i-1):
+        I = I + C[k]
+    I = I+j
+    return I
+    
+def ij(I,c):
+    i = (I-1)//c +1
+    j = (I-1)%c +1
+    return i,j
     
 def createMatrix(x, y, c, r):
     a = x/c # spacing in x axis
