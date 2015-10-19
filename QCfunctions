@@ -1,6 +1,18 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Oct 13 14:03:57 2015
+import numpy as np
+c=4
+r=3
+a = np.zeros((r+2,c+2))
+
+b = [[1,2],[2,3,4,5],[6,7]]
+C=[2,4,2]
+
+for i in range(0,r):
+    for j in range(0,C[i]): 
+        np.put(a[i+1], [(c+2-C[i])/2+j], b[i][j])
+print(a)
 
 @author: mbyx9dl2
 """
