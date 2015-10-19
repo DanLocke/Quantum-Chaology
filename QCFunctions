@@ -134,16 +134,33 @@ def findStateNumber( state_x, state_y):
     print('Number state in list = %i ' % len(s))
     print('DEGENERACY COUNT: %i' %deg_count)
     
-def arrayFromZ(v, c, r):
-    # Reshape the eigenvector
-    z = v.reshape((r,c))
-    # Add in boundary conditions
-    z = np.insert(z,0,0, axis=1)
-    z = np.insert(z,c+1,0, axis=1)
-    z = np.insert(z, 0,0,axis=0)
-    zero = np.zeros((1,c+2))
-    z = np.append(z,zero, axis=0 )
-    z = z*z
+def arrayFromZ(v, c, r, C):
+    Colsum = 0
+    z=[None]*r
+    for i in range(0,r):
+        z[i] = (v[Colsum:Colsum+C[i]])
+        Colsum = Colsum+C[i]
+    #print(z)
+    z = np.array(z)
+    print(z)
+    zero = np.zeros(((r+2), (c+2)))
+    print(1.5*(max(C)+2)-0.5*C[0])
+    print(1.5*(max(C)+2)-0.5*C[0] +C[0])
+    
+    np.put(zero,[8,9],z[0] )
+    np.put(zero,[13,14,15,16], z[1])
+    np.put(zero,[20,21], z[2])
+    print(zero)
+    
+#    # Reshape the eigenvector
+#    z = v.reshape((r,c))
+#    # Add in boundary conditions
+#    z = np.insert(z,0,0, axis=1)
+#    z = np.insert(z,c+1,0, axis=1)
+#    z = np.insert(z, 0,0,axis=0)
+#    zero = np.zeros((1,c+2))
+#    z = np.append(z,zero, axis=0 )
+#    z = z*z
     return z
 
 def plot2Dpsi(X,Y,z,ansatz):
