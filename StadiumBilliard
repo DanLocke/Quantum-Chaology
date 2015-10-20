@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Sep 30 17:35:32 2015
+
+2D infinite potential wells
+@author: Dan Goldsmith & Dan Locke
+"""
+import numpy as np
+from numpy import linalg
+import QCfunctions as qcf
+
+c =80#int(input("Enter number of points in x axis: "))
+r = 60#int(input("Enter number points in y axis: "))
+a=0.01
+b=a
+x = c*a#float(input("Enter width (x axis) of well: "))
+y = r*a#float(input("Enter depth (y axis) of well: "))
+
+xmap=[]
+ymap=[]
+C=[]
+for i in range(1,r+1):
+    col_count = 0
+    for j in range(1,c+1):
+        if qcf.inside(i,j,c,r) == 1: 
+            xmap.append(j)
+            ymap.append(i)
+            col_count = col_count +1
+    C.append(col_count)         
+      
+qcf.plotMap(xmap,ymap)
+
+H = qcf.genMatrix(xmap,ymap,a,b)
+w, v = linalg.eigh(H)
+
+# enumerate list and sort by eigenvalues, return index of relevant energy level; m labels mth energy level (in sorted list of energies)
+m=800
+state_ind = sorted(enumerate(w), key=lambda x: x[1])[m][0]#[len(s)+counter][0]
+
+xt = np.linspace(0,x,c+2)
+yt = np.linspace(0,y,r+2)
+X, Y = np.meshgrid(xt, yt)
+z = qcf.arrayFromZ(v[:,state_ind], c, r, C, xt, yt)
+
+#state_x = int(input("Enter energy state in x (GS=1): "))
+#state_y = int(input("Enter energy state in y (GS=1): "))
+
+qcf.plot2Dpsi(X,Y,z,m)
+     
+n = len(ymap)
+nt = np.linspace(1,n,n)
+E = sorted(w/2)
+qcf.plotEnergies(nt, E, 0)
+qcf.plotContour(X,Y,z,m)
+
