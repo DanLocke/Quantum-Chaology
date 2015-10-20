@@ -7,7 +7,7 @@ Created on Wed Sep 30 17:35:32 2015
 """
 import numpy as np
 from numpy import linalg
-import QCfunctions as qcf
+import QCfunctStad as qcf
 
 c =80#int(input("Enter number of points in x axis: "))
 r = 60#int(input("Enter number points in y axis: "))
