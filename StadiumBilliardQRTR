@@ -49,6 +49,17 @@ oe = 1#qcf.OE(state)
 N = int(n)
 M=N-1
 #print(N)
+
+
+def J(i,j):
+    for I in range(0,(r+1)//2):
+        for J in range(0,halfC[I+(r-1)//2]):        
+            print(I,J,qcf.I((r+1)//2-1+I,halfC[I+(r+1)//2-1]-1+J,C)) #i,j
+            print(I,J,qcf.I((r+1)//2-1+I,halfC[I+(r+1)//2-1]-1-J,C)) #i,-j
+            print(I,J,qcf.I((r+1)//2-1-I,halfC[I+(r+1)//2-1]-1+J,C)) #-i,j
+            print(I,J,qcf.I((r+1)//2-1-I,halfC[I+(r+1)//2-1]-1-J,C)) #-i,-j
+
+
 sH = np.zeros((N,N))
 for j in range(0,N):
     for i in range(0,N):
